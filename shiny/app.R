@@ -51,12 +51,24 @@ metric_table <- function(acc) {
 }
 
 message("---- ARIMA FIT TEST ----")
-test_fit <- tryCatch({
-  x <- wines_ts |> filter(Varietal == "Red", Month <= yearmonth("1993 Aug"))
-  f <- model(x, arima = ARIMA(Sales))
-  message("Model summary: ", model_sum(f$arima[[1]]))
-  message(paste(capture.output(str(f$arima[[1]], max.level = 3)), collapse = "\n"))
-}, error = function(e) message("OUTER ERROR: ", conditionMessage(e)))
+x <- wines_ts |> filter(Varietal == "Red", Month <= yearmonth("1993 Aug"))
+tryCatch(
+  withCallingHandlers(
+    model(x, arima = ARIMA(Sales), .safely = FALSE),
+    error = function(e) {
+      message("CLASS: ", paste(class(e), collapse = ", "))
+      message("MESSAGE: ", conditionMessage(e))
+      message("CALLS:\n", paste(utils::head(vapply(sys.calls(), function(cl)
+        paste(deparse(cl, nlines = 1), collapse = ""), ""), 25), collapse = "\n"))
+    }
+  ),
+  error = function(e) message("CAUGHT: ", conditionMessage(e))
+)
+y <- ts(x$Sales, frequency = 12, start = c(1980, 1))
+message("stats::arima: ", tryCatch({stats::arima(y, order = c(0,1,1),
+  seasonal = c(0,1,1)); "OK"}, error = function(e) conditionMessage(e)))
+message("kpss: ", tryCatch({urca::ur.kpss(y); "OK"},
+  error = function(e) conditionMessage(e)))
 message("------------------------")
 
 # ---------------------------------------------------------------------------
