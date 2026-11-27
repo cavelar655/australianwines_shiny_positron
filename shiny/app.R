@@ -3,6 +3,7 @@ library(bslib)
 library(fpp3)
 library(readr)
 library(gt)
+library(urca)
 
 message("---- ARIMA DIAGNOSTICS ----")
 for (p in c("fable", "fabletools", "feasts", "urca", "tsibble", "forecast")) {
