@@ -1,0 +1,1 @@
+rsconnect::writeManifest(appDir = "shiny", appPrimaryDoc = "app.R")
