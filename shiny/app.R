@@ -5,19 +5,6 @@ library(readr)
 library(gt)
 library(urca)
 
-message("---- ARIMA DIAGNOSTICS ----")
-for (p in c("fable", "fabletools", "feasts", "urca", "tsibble", "forecast")) {
-  message(p, ": ",
-          if (requireNamespace(p, quietly = TRUE)) as.character(packageVersion(p)) else "NOT INSTALLED")
-}
-message("R: ", R.version.string)
-message("ndiffs test: ",
-        tryCatch(feasts::unitroot_ndiffs(rnorm(60)), error = function(e) paste("ERROR:", conditionMessage(e))))
-message("nsdiffs test: ",
-        tryCatch(feasts::unitroot_nsdiffs(ts(rnorm(60), frequency = 12)), error = function(e) paste("ERROR:", conditionMessage(e))))
-message("---------------------------")
-
-
 
 # ---------------------------------------------------------------------------
 # Data import (from the .qmd) -- AustralianWines.csv must sit next to app.R
@@ -49,27 +36,6 @@ metric_table <- function(acc) {
     gt() |>
     fmt_number(columns = c(RMSE, MAE, MAPE), decimals = 2)
 }
-
-message("---- ARIMA FIT TEST ----")
-x <- wines_ts |> filter(Varietal == "Red", Month <= yearmonth("1993 Aug"))
-tryCatch(
-  withCallingHandlers(
-    model(x, arima = ARIMA(Sales), .safely = FALSE),
-    error = function(e) {
-      message("CLASS: ", paste(class(e), collapse = ", "))
-      message("MESSAGE: ", conditionMessage(e))
-      message("CALLS:\n", paste(utils::head(vapply(sys.calls(), function(cl)
-        paste(deparse(cl, nlines = 1), collapse = ""), ""), 25), collapse = "\n"))
-    }
-  ),
-  error = function(e) message("CAUGHT: ", conditionMessage(e))
-)
-y <- ts(x$Sales, frequency = 12, start = c(1980, 1))
-message("stats::arima: ", tryCatch({stats::arima(y, order = c(0,1,1),
-  seasonal = c(0,1,1)); "OK"}, error = function(e) conditionMessage(e)))
-message("kpss: ", tryCatch({urca::ur.kpss(y); "OK"},
-  error = function(e) conditionMessage(e)))
-message("------------------------")
 
 # ---------------------------------------------------------------------------
 # UI -- three tabs, each with its own inputs
