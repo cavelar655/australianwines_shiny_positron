@@ -3,7 +3,7 @@
 An interactive Shiny app for exploring and forecasting monthly Australian
 wine sales by varietal.
 
-**Live app:** https://connect.posit.cloud/cavelar/content/01a21c0f-94ce-6bf1-0d1a-90306bf3e5e2 
+**Live app:** https://connect.posit.cloud/cavelar/content/01a21f03-e6e9-403c-b1e4-c0f91328afab
 
 ## Data
 `AustralianWines.csv` has monthly sales (thousands of litres) for six
